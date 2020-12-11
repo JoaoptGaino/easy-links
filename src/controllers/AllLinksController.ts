@@ -4,11 +4,27 @@ import db from '../database/connection';
 
 export default class AllLinksController {
     async show(req: Request, res: Response) {
-        const links = await db('allLinks')
-        .join('users', 'users.id', '=', 'allLinks.user_id')
-        .select('allLinks.url','allLinks.link_name','users.username');
-
-        return res.status(200).json(links);
+        const { user } = req.params;
+        if (!user) {
+            return res.status(500).json({
+                message: "Internal error"
+            });
+        }
+        try {
+            const links = await db('allLinks')
+                .join('users', 'users.id', '=', 'allLinks.user_id')
+                .where('users.username', '=', String(user))
+                .select('allLinks.url', 'allLinks.link_name', 'users.username');
+            if (links.length === 0) {
+                res.status(404).json({
+                    message: "Couldn't find any link"
+                });
+            } else {
+                res.status(200).json(links);
+            }
+        } catch (err) {
+            return res.json(err);
+        }
     }
     async create(req: Request, res: Response) {
         const { url, link_name, user_id } = req.body;

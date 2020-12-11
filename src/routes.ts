@@ -20,7 +20,7 @@ routes.get('/users',usersController.index);
 
 //-------------------- LINKS ---------------------//
 routes.post('/link',allLinksController.create);
-routes.get('/link',allLinksController.show);
+routes.get('/link/:user',allLinksController.show);
 
 
 export default routes;
