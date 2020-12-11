@@ -1,15 +1,14 @@
 import express from 'express';
+import cors from 'cors';
+import routes from './routes';
 
 const app = express();
 
-
-app.get('/',(req,res)=>{
-    res.send('Hello world!!');
-});
-
+app.use(express.json());
+app.use(cors());
+app.use(routes);
 
 
-
-app.listen(process.env.PORT || 5050,()=>{
+app.listen(process.env.PORT || 5050, () => {
     console.log(`Running at 5050 or env port`);
 });
