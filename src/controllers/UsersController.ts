@@ -6,15 +6,15 @@ import db from '../database/connection';
 
 
 export default class UsersController {
+
     async create(req: Request, res: Response) {
         const {
-            image,
             name,
             username,
             email,
             password
         } = req.body;
-        const user = { image, name, username, email, password };
+        const user = { image: req.file.filename, name, username, email, password };
         const trx = await db.transaction();
         try {
             await trx('users').insert(user);
@@ -34,11 +34,20 @@ export default class UsersController {
     async index(req: Request, res: Response) {
         try {
             const users = await db('users').select('*');
-            return res
-                .json(users);
-        }catch(err){
+            const serializedUser = users.map(user => {
+                return {
+                    id: user.id,
+                    name: user.name,
+                    username: user.username,
+                    email: user.email,
+                    password: user.password,
+                    image_url:`http://localhost:5050/uploads/${user.image}`
+                }
+            });
+            return res.json(serializedUser);
+        } catch (err) {
             return res.status(500).json({
-                error:"Internal error"
+                error: "Internal error"
             });
         }
     }

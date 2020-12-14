@@ -1,5 +1,5 @@
 import knex from 'knex';
-import {db_name} from '../configs/index';
+import {db_name} from '../../configs/index';
 const db = knex({
     client: 'mysql',
     connection: {

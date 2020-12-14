@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import routes from './routes';
+import path from 'path';
 
 const app = express();
 
@@ -8,6 +9,7 @@ app.use(express.json());
 app.use(cors());
 app.use(routes);
 
+app.use('/uploads', express.static(path.resolve(__dirname, '..', 'uploads')))
 
 app.listen(process.env.PORT || 5050, () => {
     console.log(`Running at 5050 or env port`);
