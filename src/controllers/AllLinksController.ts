@@ -3,37 +3,28 @@ import db from '../database/connection';
 
 
 export default class AllLinksController {
-    async remove(req: Request, res: Response) {
-        const { user, id } = req.params;
-        if (!user) {
-            return res.status(500).json({
-                message: `User was not specified`
-            });
-        }
-        try {
-            const users = await db('users').where('username', '=', user).select('*');
-            const usersArray = JSON.stringify(users);
-            const usersJson = JSON.parse(usersArray);
-            const userid = usersJson[0].id;
+    async create(req: Request, res: Response) {
+        const { url, link_name, user_id } = req.body;
+        const link = { url, link_name, user_id };
 
-            const deletedItem = await db('allLinks').where('user_id', '=', userid).andWhere('id', '=', id).delete();
-            console.log(deletedItem);
-            if (deletedItem > 0) {
-                return res.status(200).json({
-                    message: "Deleted successfuly"
-                });
-            }else{
-                return res.status(404).json({
-                    message:"Couldn't find link"
-                })
-            }
+        const trx = await db.transaction();
+
+        try {
+            await trx('allLinks').insert(link);
+            await trx.commit();
+            return res.status(201).json({
+                message: "Created new link",
+                link
+            });
         } catch (err) {
-            return res.status(404).json({
-                message: "Couldn't find anything"
+            await trx.rollback();
+            return res.status(400).json({
+                message: `Unable to create new link`,
+                err
             })
         }
     }
-    async show(req: Request, res: Response) {
+    async read(req: Request, res: Response) {
         const { user } = req.params;
         if (!user) {
             return res.status(500).json({
@@ -57,24 +48,67 @@ export default class AllLinksController {
             return res.json(err);
         }
     }
-    async create(req: Request, res: Response) {
-        const { url, link_name, user_id } = req.body;
-        const link = { url, link_name, user_id };
-
-        const trx = await db.transaction();
+    async update(req: Request, res: Response) {
+        const { user, id } = req.params;
+        const { url, link_name, username } = req.body;
+        const updt = { url, link_name, username };
+        if (!user) {
+            return res.status(500).json({
+                message: `User was not specified`
+            });
+        }
 
         try {
-            await trx('allLinks').insert(link);
-            await trx.commit();
-            return res.status(201).json({
-                message: "Created new link",
-                link
-            });
+            const users = await db('users').where('username', '=', user).select('*');
+            const usersArray = JSON.stringify(users);
+            const usersJson = JSON.parse(usersArray);
+            const userid = usersJson[0].id;
+            const updatedItem = await db('allLinks').where('user_id', '=', userid).andWhere('id', '=', id).update(updt);
+
+            if (updatedItem > 0) {
+                return res.status(200).json({
+                    updatedItem,
+                    message: "Updated"
+                })
+            } else {
+                return res.status(500).json({
+                    message: "Internal error"
+                });
+            }
         } catch (err) {
-            await trx.rollback();
-            return res.status(400).json({
-                message: `Unable to create new link`,
-                err
+            console.log(err);
+            return res.status(500).json({
+                message:"Internal error"
+            });
+        }
+    }
+    async delete(req: Request, res: Response) {
+        const { user, id } = req.params;
+        if (!user) {
+            return res.status(500).json({
+                message: `User was not specified`
+            });
+        }
+        try {
+            const users = await db('users').where('username', '=', user).select('*');
+            const usersArray = JSON.stringify(users);
+            const usersJson = JSON.parse(usersArray);
+            const userid = usersJson[0].id;
+
+            const deletedItem = await db('allLinks').where('user_id', '=', userid).andWhere('id', '=', id).delete();
+            console.log(deletedItem);
+            if (deletedItem > 0) {
+                return res.status(200).json({
+                    message: "Deleted successfuly"
+                });
+            } else {
+                return res.status(404).json({
+                    message: "Couldn't find link"
+                })
+            }
+        } catch (err) {
+            return res.status(404).json({
+                message: "Couldn't find anything"
             })
         }
     }

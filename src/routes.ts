@@ -17,6 +17,7 @@ routes.get('/', (req, res) => {
 });
 
 
+//-------------------- USERS ---------------------//
 routes.post('/users',
     upload.single('image'),
     celebrate({
@@ -31,13 +32,17 @@ routes.post('/users',
     }),
     usersController.create);
 routes.get('/users', usersController.index);
+routes.post('/auth', usersController.auth);
+routes.put('/users', usersController.update);
+
 
 
 //-------------------- LINKS ---------------------//
 routes.post('/link', allLinksController.create);
-routes.get('/:user', allLinksController.show);
+routes.get('/:user', allLinksController.read);
+routes.put('/:user/:id', allLinksController.update)
+routes.delete('/:user/:id', allLinksController.delete);
 
-routes.delete('/:user/:id',allLinksController.remove);
 
 
 export default routes;
