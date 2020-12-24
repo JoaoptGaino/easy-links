@@ -69,7 +69,6 @@ export default class UsersController {
         }
     }
     async update(req: Request, res: Response) {
-        /* const { id } = req.params; */
         const { name, username, email, password, img_url } = req.body;
         const updatedItems = { name, username, password, img_url };
         try {
@@ -89,4 +88,26 @@ export default class UsersController {
             });
         }
     }
+    async delete(req: Request, res: Response) {
+        const { user } = req.params;
+
+        try {
+            const deletedUser = await db('users').where('username', '=', user).delete();
+            if (deletedUser > 0) {
+                return res.status(200).json({
+                    message: `${user} deleted succesfuly`
+                });
+            } else {
+                return res.status(404).json({
+                    message: `Couldn't find user ${user}`
+                });
+            }
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({
+                message: "Internal error"
+            })
+        }
+    }
+
 }

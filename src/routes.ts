@@ -34,6 +34,7 @@ routes.post('/users',
 routes.get('/users', usersController.index);
 routes.post('/auth', usersController.auth);
 routes.put('/users', usersController.update);
+routes.delete('/users/:user', usersController.delete);
 
 
 
