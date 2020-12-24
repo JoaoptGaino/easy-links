@@ -109,5 +109,12 @@ export default class UsersController {
             })
         }
     }
+    async count(req: Request, res: Response) {
+        const allUsers = await db('users')
+            .count('* as total');
+        const { total } = allUsers[0];
 
+
+        return res.json({ total });
+    }
 }
