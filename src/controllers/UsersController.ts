@@ -6,6 +6,7 @@ import db from '../database/connection';
 
 
 export default class UsersController {
+
     async auth(req: Request, res: Response) {
         const { username, password } = req.body;
 
@@ -66,6 +67,26 @@ export default class UsersController {
             return res.status(500).json({
                 error: "Internal error"
             });
+        }
+    }
+    async showOne(req: Request, res: Response) {
+        const { username } = req.params;
+        try {
+            const users = await db('users').where('username', '=', username).select('*');
+            const serializedUser = users.map(user => {
+                return ({
+                    id: user.id,
+                    name: user.name,
+                    username: user.username,
+                    email: user.email,
+                    image_url: `http://localhost:5050/uploads/${user.image}`
+                })
+            });
+            return res.json(serializedUser);
+        } catch (err) {
+            return res.status(500).json({
+                error: "Internal error"
+            })
         }
     }
     async update(req: Request, res: Response) {
